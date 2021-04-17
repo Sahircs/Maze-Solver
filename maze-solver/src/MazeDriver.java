@@ -5,7 +5,7 @@ Optional Java Application used in dev process.
 Use to Print Maze/RouteFinder 
 */
 
-// package maze;
+import maze.Maze;
 
 public class MazeDriver {
     public static void main(String args[]) throws FileNotFoundException {
