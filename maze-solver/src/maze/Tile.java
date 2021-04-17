@@ -1,6 +1,7 @@
 package maze;
 
 import java.util.Map;
+import java.util.Random;
 
 public class Tile {
     private Type type;
@@ -11,16 +12,26 @@ public class Tile {
         Map.entry('x', Type.EXIT.toString()),
         Map.entry('#', Type.WALL.toString())
     );
+    public static Map<String, String> typeToStringMap = Map.ofEntries(
+        Map.entry(Type.CORRIDOR.toString(), "."),
+        Map.entry(Type.ENTRANCE.toString(), "e"),
+        Map.entry(Type.EXIT.toString(), "x"),
+        Map.entry(Type.WALL.toString(), "#")
+    );
 
     private Tile(Tile.Type tileType) {
         type = tileType;
     }
 
-    protected static Tile fromChar(char typeCharRepresentation) {
-        typeStringRepresentation = Character.toString(typeCharRepresentation);
-        
+    protected static Tile fromChar(char charRepresentation) {
+        typeStringRepresentation = Character.toString(charRepresentation);
+
+        // if (typeStringRepresentation.equals("e")) {
+        //     System.out.println(typeStringRepresentation + "|" + charRepresentation) ;
+        // }
+
         // Using HashMap to get the Type 
-        return new Tile(Type.valueOf(typeCharMap.get(typeCharRepresentation)));
+        return new Tile(Type.valueOf(typeCharMap.get(charRepresentation)));
     }
 
     public Type getType() {
@@ -33,8 +44,8 @@ public class Tile {
     }
 
     public String toString() {
-        // HashMap???
-        return typeStringRepresentation;    
+        // System.out.print(type);
+        return typeToStringMap.get(type.toString());
     }
 
     public enum Type {

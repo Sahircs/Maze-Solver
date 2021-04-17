@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.util.Scanner;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 
 public class Maze {
     private Tile entrance;
@@ -20,10 +22,30 @@ public class Maze {
         tiles = new ArrayList<List<Tile>>();
     } 
 
-    // attributes
-    public static void fromTxt(String filePath) throws FileNotFoundException {
+    // Getters: variables
+    public List<List<Tile>> getTiles() {
+        return tiles;
+    }
+    public Tile getEntrance() {
+        return entrance;
+    }
+    public Tile getExit() {
+        return exit;
+    }
+
+    // Setters: variables
+    private void setEntrance(Tile entranceTile) {
+        entrance = entranceTile;
+        entranceExists = true;
+    }
+    private void setExit(Tile exitTile) {
+        exit = exitTile;
+        exitExists = true;
+    }
+
+    // Creating Maze
+    public static void fromTxt(String filePath) throws FileNotFoundException, InvalidMazeException {
         Maze mazeInstance = new Maze();
-        // Tile tileInstance = new Tile(Tile.Type.WALL);
 
         Scanner scan = new Scanner(new FileReader(filePath));
 
@@ -40,16 +62,18 @@ public class Maze {
                         mazeInstance.setEntrance(entranceTile);
                         continue;
                     } else {
-                        // MultipleEntranceException
+                        // Multiple entrances
+                        throw new MultipleEntranceException("Multiple Entrances detected in file!");
                     }
                 } else if (mazeCell.equals("x")) {  // Exit check
                     if (!exitExists) {
-                        Tile exitTile = Tile.fromChar('e');
+                        Tile exitTile = Tile.fromChar('x');
                         rowOfTiles.add(exitTile);
                         mazeInstance.setExit(exitTile);
                         continue;
                     } else {
-                        // MultipleExitException
+                        // Multiple exits
+                        throw new MultipleExitException("Multiple Exits detected in file!");
                     }
                 } else if (mazeCell.equals(".")) {  // Corridor check
                     rowOfTiles.add(Tile.fromChar('.'));
@@ -57,37 +81,96 @@ public class Maze {
                 } else if (mazeCell.equals("#")) {  // Wall check
                     rowOfTiles.add(Tile.fromChar('#'));
                     continue;
-                } else {                            // Not a valid cell
-                    continue;
+                } else {
+                    // Not a valid cell
+                    throw new RaggedMazeException("Character '" + mazeCell + "' not valid input!");
                 }
             }
 
             // Add row to tiles list
             mazeInstance.tiles.add(rowOfTiles);
         }
+
         scan.close();
 
-        
+        // No entrances
+        if (!entranceExists) {
+            throw new NoEntranceException("No Entrance detected in file!");
+        }
+        // No exits
+        if (!exitExists) {
+            throw new NoExitException("No Exit detected in file!");
+        }
     }
 
-    // Getters
-    public List<List<Tile>> getTiles() {
-        return tiles;
-    }
-    public Tile getEntrance() {
-        return entrance;
-    }
-    public Tile getExit() {
-        return exit;
+    public String toString() {
+        String mazeVisualised = "";
+
+        int rowSize = tiles.size();
+        int colSize = tiles.get(0).size();
+
+        for (int row = 0; row < rowSize; row++) {
+            mazeVisualised += ((rowSize - row - 1) + "\t");
+            for (int col = 0; col < colSize; col++) {
+                // ~~~ Uncomment below statement for columns >= 10 ~~~
+                if (Integer.toString(col).length() > 1) {
+                    mazeVisualised += " ";
+                }
+                mazeVisualised += (tiles.get(row).get(col).toString() + "  ");
+            }
+            mazeVisualised += "\n\n";
+        }
+
+        mazeVisualised += "\n\n\t";
+
+        // display columns at the bottom
+        for (int col = 0; col < colSize; col++) {
+            mazeVisualised += (col + "  ");
+        }
+        mazeVisualised += "\n";
+
+        return mazeVisualised;
     }
 
-    // Setters
-    private void setEntrance(Tile entranceTile) {
-        entrance = entranceTile;
-        entranceExists = true;
+    public Tile getAdjacentTile(Tile tile, Direction direction) {
+        return Tile.fromChar('e');
     }
-    private void setExit(Tile exitTile) {
-        exit = exitTile;
-        exitExists = true;
+
+    public Tile getTileAtLocation(Coordinate coord) {
+        return tiles.get(coord.getY()).get(coord.getX());
+    }
+
+    public Coordinate getTileLocation(Tile tile) {
+        // uuid -> Map<Id, Tile>
+        return new Coordinate(1, 1);
+    }
+
+    public enum Direction {
+        NORTH,
+        SOUTH,
+        EAST,
+        WEST;
+    }
+
+    public static class Coordinate {
+        private int x;
+        private int y;
+
+        public Coordinate(int xVal, int yVal) {
+            x = xVal;
+            y = yVal;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public String toString() {
+            return "(" + x + ", " + y + ")" ;
+        }
     }
 }
