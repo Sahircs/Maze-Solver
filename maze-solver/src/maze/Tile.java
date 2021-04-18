@@ -1,7 +1,9 @@
 package maze;
 
 import java.util.Map;
-import java.util.Random;
+import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
 
 public class Tile {
     private Type type;
@@ -18,17 +20,16 @@ public class Tile {
         Map.entry(Type.EXIT.toString(), "x"),
         Map.entry(Type.WALL.toString(), "#")
     );
+    public static String id;
+    public static Set<String> idsAlreadyUsed = new HashSet<String>();
 
     private Tile(Tile.Type tileType) {
         type = tileType;
+        id = generateUniqueId();
     }
 
     protected static Tile fromChar(char charRepresentation) {
         typeStringRepresentation = Character.toString(charRepresentation);
-
-        // if (typeStringRepresentation.equals("e")) {
-        //     System.out.println(typeStringRepresentation + "|" + charRepresentation) ;
-        // }
 
         // Using HashMap to get the Type 
         return new Tile(Type.valueOf(typeCharMap.get(charRepresentation)));
@@ -44,7 +45,6 @@ public class Tile {
     }
 
     public String toString() {
-        // System.out.print(type);
         return typeToStringMap.get(type.toString());
     }
 
@@ -53,5 +53,19 @@ public class Tile {
         ENTRANCE,   // e
         EXIT,       // x
         WALL;       // #
+    }
+
+    // Helper Method to Generate a unique id for each Tile 
+    // -> so it can be added to a HashMap in Maze
+    public static String generateUniqueId() {
+        while (true) {
+            String possibleId = UUID.randomUUID().toString().substring(0, 8);
+
+            if (idsAlreadyUsed.contains(possibleId)) {
+                continue;
+            }
+            
+            return possibleId;
+        }
     }
 }

@@ -1,26 +1,30 @@
 package maze;
 
-import java.io.FileNotFoundException;
+
 import java.io.FileReader;
 import java.util.Scanner;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
 
 
 public class Maze {
     private Tile entrance;
     private Tile exit;
     private List<List<Tile>> tiles;
-
     // Extra variables to help when creating Maze
     private static boolean entranceExists = false;
     private static boolean exitExists = false;
-
+    // HashMap: Tile -> Coordinate
+    public static Map<Tile, Coordinate> tileToCoordinateMap = new HashMap<Tile, Coordinate>();
 
     private Maze() {
         tiles = new ArrayList<List<Tile>>();
-    } 
+    }
 
     // Getters: variables
     public List<List<Tile>> getTiles() {
@@ -49,46 +53,49 @@ public class Maze {
 
         Scanner scan = new Scanner(new FileReader(filePath));
 
+        int rowNumber = 0;
+        
         while (scan.hasNextLine()) {
             String[] mazeRowInput = scan.nextLine().replaceAll("\\s", "").split("");
 
-            // Iterate through row and check if valid Tile
             List<Tile> rowOfTiles = new ArrayList<Tile>();
-            for (String mazeCell : mazeRowInput) {
+            
+            // Iterate through row and check if valid Tile
+            for (int idx = 0; idx < mazeRowInput.length; idx++) {
+                String mazeCell = mazeRowInput[idx];
+                Tile tile;
                 if (mazeCell.equals("e")) {         // Entrance check
                     if (!entranceExists) {
-                        Tile entranceTile = Tile.fromChar('e');
-                        rowOfTiles.add(entranceTile);
-                        mazeInstance.setEntrance(entranceTile);
-                        continue;
+                        tile = Tile.fromChar('e');
+                        mazeInstance.setEntrance(tile);
                     } else {
                         // Multiple entrances
                         throw new MultipleEntranceException("Multiple Entrances detected in file!");
                     }
                 } else if (mazeCell.equals("x")) {  // Exit check
                     if (!exitExists) {
-                        Tile exitTile = Tile.fromChar('x');
-                        rowOfTiles.add(exitTile);
-                        mazeInstance.setExit(exitTile);
-                        continue;
+                        tile = Tile.fromChar('x');
+                        mazeInstance.setExit(tile);
                     } else {
                         // Multiple exits
                         throw new MultipleExitException("Multiple Exits detected in file!");
                     }
                 } else if (mazeCell.equals(".")) {  // Corridor check
-                    rowOfTiles.add(Tile.fromChar('.'));
-                    continue;
+                    tile = Tile.fromChar('.');
                 } else if (mazeCell.equals("#")) {  // Wall check
-                    rowOfTiles.add(Tile.fromChar('#'));
-                    continue;
+                    tile = Tile.fromChar('#');
                 } else {
                     // Not a valid cell
                     throw new RaggedMazeException("Character '" + mazeCell + "' not valid input!");
                 }
+
+                rowOfTiles.add(tile);
+                tileToCoordinateMap.put(tile, new Coordinate(idx, rowNumber));
             }
 
             // Add row to tiles list
             mazeInstance.tiles.add(rowOfTiles);
+            rowNumber++;
         }
 
         scan.close();
@@ -101,6 +108,9 @@ public class Maze {
         if (!exitExists) {
             throw new NoExitException("No Exit detected in file!");
         }
+
+        // Reverse: rows start from the bottom 
+        Collections.reverse(mazeInstance.tiles);
     }
 
     public String toString() {
@@ -112,7 +122,7 @@ public class Maze {
         for (int row = 0; row < rowSize; row++) {
             mazeVisualised += ((rowSize - row - 1) + "\t");
             for (int col = 0; col < colSize; col++) {
-                // ~~~ Uncomment below statement for columns >= 10 ~~~
+                // For rows >= 10  ->  they need some extra space
                 if (Integer.toString(col).length() > 1) {
                     mazeVisualised += " ";
                 }
@@ -132,17 +142,40 @@ public class Maze {
         return mazeVisualised;
     }
 
-    public Tile getAdjacentTile(Tile tile, Direction direction) {
-        return Tile.fromChar('e');
+    public Tile getAdjacentTile(Tile tile, Direction direction) throws InvalidMazeException {
+        Coordinate tileCoords = getTileLocation(tile);
+
+        int x = tileCoords.getX();
+        int y = tileCoords.getY();
+
+        if (direction == Direction.NORTH) {
+            y++;
+        } else if (direction == Direction.SOUTH) {
+            y--;
+        } else if (direction == Direction.EAST) {
+            x++;
+        } else if (direction == Direction.WEST) {
+            x--;
+        } 
+
+        // Boundary check
+        if (x < 0 || x >= tiles.get(0).size() || y < 0 || y >= tiles.size()) {
+            throw new RaggedMazeException("Current tile has no adjacent tile in that direction!");
+        }
+
+        return tiles.get(tiles.size() - y - 1).get(x);
     }
 
     public Tile getTileAtLocation(Coordinate coord) {
-        return tiles.get(coord.getY()).get(coord.getX());
+        int x = coord.getX();
+        int y = tiles.size() - coord.getY() - 1;
+
+        return tiles.get(y).get(x);
     }
 
     public Coordinate getTileLocation(Tile tile) {
-        // uuid -> Map<Id, Tile>
-        return new Coordinate(1, 1);
+        // Using HashMap
+        return tileToCoordinateMap.get(tile);
     }
 
     public enum Direction {
