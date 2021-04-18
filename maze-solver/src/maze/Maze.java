@@ -1,9 +1,8 @@
 package maze;
 
-
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Scanner;
-import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +47,7 @@ public class Maze {
     }
 
     // Creating Maze
-    public static void fromTxt(String filePath) throws FileNotFoundException, InvalidMazeException {
+    public static Maze fromTxt(String filePath) throws FileNotFoundException, InvalidMazeException {
         Maze mazeInstance = new Maze();
 
         Scanner scan = new Scanner(new FileReader(filePath));
@@ -111,6 +110,8 @@ public class Maze {
 
         // Reverse: rows start from the bottom 
         Collections.reverse(mazeInstance.tiles);
+
+        return mazeInstance;
     }
 
     public String toString() {
