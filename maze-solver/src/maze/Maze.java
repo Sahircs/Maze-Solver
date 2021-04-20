@@ -3,6 +3,7 @@ package maze;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Scanner;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +21,7 @@ public class Maze {
     private static boolean exitExists = false;
     // HashMap: Tile -> Coordinate
     public static Map<Tile, Coordinate> tileToCoordinateMap = new HashMap<Tile, Coordinate>();
+
 
     private Maze() {
         tiles = new ArrayList<List<Tile>>();
@@ -111,7 +113,38 @@ public class Maze {
         // Reverse: rows start from the bottom 
         Collections.reverse(mazeInstance.tiles);
 
+        mazeInstance.tiles = updateDirectionsVisited(mazeInstance.tiles);
+
         return mazeInstance;
+    }
+
+    public static List<List<Tile>> updateDirectionsVisited(List<List<Tile>> tileList) {
+        int rowEnd = tileList.size() - 1;
+        int columnEnd = tileList.get(0).size() - 1;
+
+        for (int y = 0; y < tileList.size(); y++) {
+            for (int x = 0; x < tileList.get(y).size(); x++) {
+                Tile tile = tileList.get(y).get(x);
+
+                // UP
+                if (y == 0 || !tileList.get(y - 1).get(x).isNavigable()) {
+                    tile.directionsVisited[0] = true;
+                } 
+                // Right
+                if (x == columnEnd || !tileList.get(y).get(x + 1).isNavigable()) {
+                    tile.directionsVisited[1] = true;
+                } 
+                // Bottom
+                if (y == rowEnd || !tileList.get(y + 1).get(x).isNavigable()) {
+                    tile.directionsVisited[2] = true;
+                }
+                // Left 
+                if (x == 0 || !tileList.get(y).get(x - 1).isNavigable()) {
+                    tile.directionsVisited[3] = true;
+                }
+            }
+        }
+        return tileList;
     }
 
     public String toString() {

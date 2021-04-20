@@ -10,12 +10,12 @@ Used for testing purposes.
 
 import maze.Maze;
 import maze.InvalidMazeException;
-import maze.routing.RouteFinder;
+// import maze.routing.RouteFinder;
 
 public class MazeDriver {
     public static void main(String args[]) throws FileNotFoundException, InvalidMazeException {
         try {  
-            Maze.fromTxt("resources/mazes/maze1.txt");
+            System.out.println(Maze.fromTxt("resources/mazes/maze1.txt"));
             // RouteFinder rf =  RouteFinder.load("resources/mazes/maze1.txt");
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());

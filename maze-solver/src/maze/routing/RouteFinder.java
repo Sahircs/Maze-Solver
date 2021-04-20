@@ -28,6 +28,7 @@ public class RouteFinder {
 
     // Returns a List of Tiles representing the current route from start to end
     public List<Tile> getRoute() {
+        // Once finished: stack of tiles -> list of tiles, i.e. Complete Route
         return new ArrayList<Tile>();
     }
 
@@ -60,8 +61,6 @@ public class RouteFinder {
         If finished -> Stack remains the same -> return true
 
         If Stack stuck in circular loop -> NoRouteFoundException | Handle where method called ???
-        
-        
         */
         
 

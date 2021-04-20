@@ -22,10 +22,13 @@ public class Tile {
     );
     public static String id;
     public static Set<String> idsAlreadyUsed = new HashSet<String>();
+    // [top, right, bottom, left]
+    public boolean[] directionsVisited;
 
     private Tile(Tile.Type tileType) {
         type = tileType;
         id = generateUniqueId();
+        directionsVisited = new boolean[]{false, false, false, false};
     }
 
     protected static Tile fromChar(char charRepresentation) {
