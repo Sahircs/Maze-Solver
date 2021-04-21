@@ -176,7 +176,7 @@ public class Maze {
         return mazeVisualised;
     }
 
-    public Tile getAdjacentTile(Tile tile, Direction direction) throws InvalidMazeException {
+    public Tile getAdjacentTile(Tile tile, Direction direction) {
         Coordinate tileCoords = getTileLocation(tile);
 
         int x = tileCoords.getX();
@@ -193,9 +193,9 @@ public class Maze {
         } 
 
         // Boundary check
-        if (x < 0 || x >= tiles.get(0).size() || y < 0 || y >= tiles.size()) {
-            throw new RaggedMazeException("Current tile has no adjacent tile in that direction!");
-        }
+        // if (x < 0 || x >= tiles.get(0).size() || y < 0 || y >= tiles.size()) {
+        //     throw new RaggedMazeException("Current tile has no adjacent tile in that direction!");
+        // }
 
         return tiles.get(tiles.size() - y - 1).get(x);
     }

@@ -22,7 +22,7 @@ public class Tile {
     );
     public static String id;
     public static Set<String> idsAlreadyUsed = new HashSet<String>();
-    // [top, right, bottom, left]
+    // [North, East, South, West]
     public boolean[] directionsVisited;
 
     private Tile(Tile.Type tileType) {

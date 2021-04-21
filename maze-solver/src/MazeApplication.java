@@ -29,6 +29,7 @@ import maze.Maze;
 import maze.InvalidMazeException;
 import maze.Tile;
 import maze.Tile.Type;
+import maze.routing.RouteFinder;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -36,21 +37,20 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class MazeApplication extends Application {
+    public static VBox root;
+    public static GridPane mazeContainer;
     public static String filePath = "resources/mazes/maze1.txt";
     public static List<List<Tile>> tiles;
     public static List<List<Rectangle>> tileList = new ArrayList<List<Rectangle>>();
-    public static Rectangle currentTile = new Rectangle(0, 0, 0, 0);
-    // Walls: Black    
-    // Tiles -> not-visited: blue  ||  visited: green
-    // Current-Tile: yellow
-    public static VBox root;
-    public static GridPane mazeContainer;
+    // public static Rectangle currentRectangle = new Rectangle(0, 0, 0, 0);
+    public static Tile currentTile;
     public static Map<String, Color> tileColourMap = Map.ofEntries(
         Map.entry(Type.CORRIDOR.toString(), Color.WHITE),
         Map.entry(Type.ENTRANCE.toString(), Color.GREEN),
         Map.entry(Type.EXIT.toString(), Color.RED),
         Map.entry(Type.WALL.toString(), Color.BLACK)
     );
+    public static RouteFinder routeFinder;
     
 
     @Override
@@ -66,7 +66,7 @@ public class MazeApplication extends Application {
         ToggleButton stepBtn = new ToggleButton("Step");
 
         // ~~~ TRY WITH ARROW FUNC -> UPDATE SCENE FOR NEW MAZE
-        loadMap.addEventFilter(MouseEvent.MOUSE_CLICKED, loadMapHandler);
+        // loadMap.addEventFilter(MouseEvent.MOUSE_CLICKED, loadMapHandler);
         stepBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, stepHandler);
         
         // Container for load/save buttons
@@ -102,10 +102,11 @@ public class MazeApplication extends Application {
                 mazeContainer.add(mazeCell, x, y);
                 tempTileList.add(mazeCell);
 
-                // if (tileType == Type.ENTRANCE.toString()) {
-                //     currentTile = mazeCell;
-                //     currentTile.setFill(Color.YELLOW);
-                // }
+                if (tileType == Type.ENTRANCE.toString()) {
+                    // currentRectangle = mazeCell;
+                    // currentTile = tiles.get(y).get(x);
+                    // currentTile.setFill(Color.YELLOW);
+                }
             }
             tileList.add(tempTileList);
         }
@@ -124,27 +125,48 @@ public class MazeApplication extends Application {
     }
 
     // Method: eventhandler -> read in filename for loading/storing
-    EventHandler<MouseEvent> loadMapHandler = new EventHandler<MouseEvent>() { 
-        @Override 
-        public void handle(MouseEvent e) { 
-            // root.getChildren().remove(1);
-            // root.getChildren().add(new ToggleButton("Testing"));
-        } 
-    }; 
+    // EventHandler<MouseEvent> loadMapHandler = new EventHandler<MouseEvent>() { 
+    //     @Override 
+    //     public void handle(MouseEvent e) { 
+    //         root.getChildren().remove(1);
+    //         root.getChildren().add(new ToggleButton("Testing"));
+    //     } 
+    // }; 
 
     EventHandler<MouseEvent> stepHandler = new EventHandler<MouseEvent>() { 
         @Override 
         public void handle(MouseEvent e) { 
+            boolean isFinished = routeFinder.step();
+
+            if (isFinished) {
+                // do something..
+                return;
+            } 
+
+            int x = routeFinder.getMaze().getTileLocation(routeFinder.currentTile).getX();
+            int y = tileList.size() - routeFinder.getMaze().getTileLocation(routeFinder.currentTile).getY();
+            Rectangle tile = tileList.get(y - 1).get(x);
             
+            // No move possible -> tile popped off stack -> update UI
+            if (routeFinder.stackMove) {
+                tile.setFill(Color.WHITE);
+                routeFinder.currentTile = routeFinder.getStackRoute().peek();
+            } else {
+                // Move made -> update UI
+                tile.setFill(Color.YELLOW);
+            }
         } 
     }; 
 
     public static void main(String args[]) throws FileNotFoundException, InvalidMazeException {
         try {  
-            tiles = Maze.fromTxt("resources/mazes/maze1.txt").getTiles();
+            // tiles = Maze.fromTxt("resources/mazes/maze1.txt").getTiles();
+            routeFinder = RouteFinder.load("resources/mazes/maze1.txt");
+            tiles = routeFinder.getMaze().getTiles();
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
         } 
+
         launch(args);
     }
 }
