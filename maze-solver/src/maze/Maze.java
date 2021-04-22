@@ -2,29 +2,31 @@ package maze;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.Serializable;
 import java.util.Scanner;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
 
-public class Maze {
+public class Maze implements Serializable {
     private Tile entrance;
     private Tile exit;
     private List<List<Tile>> tiles;
     // Extra variables to help when creating Maze
-    private static boolean entranceExists = false;
-    private static boolean exitExists = false;
+    public static boolean entranceExists = false;
+    public static boolean exitExists = false;
     // HashMap: Tile -> Coordinate
-    public static Map<Tile, Coordinate> tileToCoordinateMap = new HashMap<Tile, Coordinate>();
+    private Map<Tile, Coordinate> tileToCoordinateMap;
+    // public static Map<Tile, Coordinate> tileToCoordinateMap = new HashMap<Tile, Coordinate>();
 
 
     private Maze() {
         tiles = new ArrayList<List<Tile>>();
+        tileToCoordinateMap = new HashMap<Tile, Coordinate>();
     }
 
     // Getters: variables
@@ -36,6 +38,9 @@ public class Maze {
     }
     public Tile getExit() {
         return exit;
+    }
+    public Map<Tile, Coordinate> getMap() {
+        return tileToCoordinateMap;
     }
 
     // Setters: variables
@@ -91,7 +96,7 @@ public class Maze {
                 }
 
                 rowOfTiles.add(tile);
-                tileToCoordinateMap.put(tile, new Coordinate(idx, rowNumber));
+                mazeInstance.tileToCoordinateMap.put(tile, new Coordinate(idx, rowNumber));
             }
 
             // Add row to tiles list
@@ -219,7 +224,7 @@ public class Maze {
         WEST;
     }
 
-    public static class Coordinate {
+    public static class Coordinate implements Serializable {
         private int x;
         private int y;
 

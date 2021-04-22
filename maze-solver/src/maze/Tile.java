@@ -3,9 +3,10 @@ package maze;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Set;
+import java.io.Serializable;
 import java.util.HashSet;
 
-public class Tile {
+public class Tile implements Serializable {
     private Type type;
     public static String typeStringRepresentation;
     public static Map<Character, String> typeCharMap = Map.ofEntries(
