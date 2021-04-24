@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Iterator;
 
+
 public class MazeApplication extends Application {
     public static VBox root;
     public static GridPane mazeContainer;
@@ -99,8 +100,6 @@ public class MazeApplication extends Application {
         mazeContainer.setAlignment(Pos.CENTER);
         mazeContainer.setGridLinesVisible(true);
 
-        // initialiseMazeUI();
-
         root = new VBox(10);
         root.setBackground(Background.EMPTY);
         root.setAlignment(Pos.CENTER);
@@ -132,7 +131,7 @@ public class MazeApplication extends Application {
             } 
             
             Rectangle tile = getRectangle(RouteFinder.currentTile);
-            
+
             // No move possible -> tile popped off stack -> update UI
             if (routeFinder.stackMove) {
                 tile.setFill(Color.WHITE);
@@ -152,18 +151,19 @@ public class MazeApplication extends Application {
 
             Maze.entranceExists = false;
             Maze.exitExists = false;
-            // Maze.tileToCoordinateMap.clear();
             Tile.idsAlreadyUsed.clear();
 
             try {
                 routeFinder = new RouteFinder(Maze.fromTxt(filePath));
+                System.out.println(routeFinder);
             } catch (FileNotFoundException e) {
                 System.out.println(e.getMessage());
                 System.out.println("File not found!");
             } catch (InvalidMazeException em) {
                 System.out.println(em.getMessage());
             }
-            
+
+            RouteFinder.currentTile = routeFinder.getStackRoute().peek();
             currentTile = routeFinder.getMaze().getEntrance();
             tiles = routeFinder.getMaze().getTiles();
             tileList.clear();
@@ -181,11 +181,11 @@ public class MazeApplication extends Application {
 
             Maze.entranceExists = false;
             Maze.exitExists = false;
-            // Remove current route from UI
-            updateRouteUI(routeFinder.getStackRoute(), Color.WHITE);
+            Tile.idsAlreadyUsed.clear();
 
             try {
                 routeFinder = RouteFinder.load(filePath);
+                System.out.println(routeFinder);
             } catch (FileNotFoundException e) {
                 System.out.println(e.getMessage());
             } catch (InvalidMazeException e2) {
@@ -193,6 +193,14 @@ public class MazeApplication extends Application {
             }
             
             RouteFinder.currentTile = routeFinder.getStackRoute().peek();
+            currentTile = routeFinder.getMaze().getEntrance();
+            tiles = routeFinder.getMaze().getTiles();
+            tileList.clear();
+
+            mazeContainer.getChildren().clear();
+
+            initialiseMazeUI();
+            
             // Update UI with updated route
             updateRouteUI(routeFinder.getStackRoute(), Color.YELLOW);
         } 
@@ -238,13 +246,18 @@ public class MazeApplication extends Application {
         while (stack.hasNext()) {
             Rectangle rectangle = getRectangle((Tile)stack.next());
             rectangle.setFill(colour);
+            
+            if (tileList.get(0).get(0) == rectangle) {
+                rectangle.setFill(Color.GREEN);
+            }
         }
+        getRectangle(routeFinder.getMaze().getEntrance()).setFill(Color.GREEN);
     }
 
     public Rectangle getRectangle(Tile tile) {
         int x = routeFinder.getMaze().getTileLocation(tile).getX();
-        int y = tileList.size() - routeFinder.getMaze().getTileLocation(tile).getY();
-        Rectangle rectangle = tileList.get(y - 1).get(x);
+        int y = tileList.size() - routeFinder.getMaze().getTileLocation(tile).getY() - 1;
+        Rectangle rectangle = tileList.get(y).get(x);
 
         return rectangle;
     }

@@ -21,8 +21,6 @@ public class Maze implements Serializable {
     public static boolean exitExists = false;
     // HashMap: Tile -> Coordinate
     private Map<Tile, Coordinate> tileToCoordinateMap;
-    // public static Map<Tile, Coordinate> tileToCoordinateMap = new HashMap<Tile, Coordinate>();
-
 
     private Maze() {
         tiles = new ArrayList<List<Tile>>();
@@ -44,25 +42,44 @@ public class Maze implements Serializable {
     }
 
     // Setters: variables
-    private void setEntrance(Tile entranceTile) {
+    private void setEntrance(Tile entranceTile) throws InvalidMazeException {
+        if (entranceExists) {
+            throw new MultipleEntranceException("Multiple Entrances");
+        }
+
         entrance = entranceTile;
         entranceExists = true;
     }
-    private void setExit(Tile exitTile) {
+    private void setExit(Tile exitTile) throws InvalidMazeException {
+        if (exitExists) {
+            throw new MultipleExitException("Multiple Exits");
+        }
+
         exit = exitTile;
         exitExists = true;
     }
 
     // Creating Maze
-    public static Maze fromTxt(String filePath) throws FileNotFoundException, InvalidMazeException {
+    public static Maze fromTxt(String filename) throws FileNotFoundException, InvalidMazeException {
+        entranceExists = false;
+        exitExists = false;
+
+        int expectedRowSize = 0;
+        boolean rowSet = false;
+
         Maze mazeInstance = new Maze();
 
-        Scanner scan = new Scanner(new FileReader(filePath));
-
-        int rowNumber = 0;
+        Scanner scan = new Scanner(new FileReader(filename));
         
         while (scan.hasNextLine()) {
             String[] mazeRowInput = scan.nextLine().replaceAll("\\s", "").split("");
+
+            if (!rowSet) {
+                expectedRowSize = mazeRowInput.length;
+                rowSet = true;
+            } else if (rowSet && mazeRowInput.length != expectedRowSize) {
+                throw new RaggedMazeException("Sizes of rows are not equal!");
+            } 
 
             List<Tile> rowOfTiles = new ArrayList<Tile>();
             
@@ -92,16 +109,14 @@ public class Maze implements Serializable {
                     tile = Tile.fromChar('#');
                 } else {
                     // Not a valid cell
-                    throw new RaggedMazeException("Character '" + mazeCell + "' not valid input!");
+                    throw new InvalidMazeException("Invalid character");
                 }
 
                 rowOfTiles.add(tile);
-                mazeInstance.tileToCoordinateMap.put(tile, new Coordinate(idx, rowNumber));
             }
 
             // Add row to tiles list
             mazeInstance.tiles.add(rowOfTiles);
-            rowNumber++;
         }
 
         scan.close();
@@ -115,8 +130,13 @@ public class Maze implements Serializable {
             throw new NoExitException("No Exit detected in file!");
         }
 
-        // Reverse: rows start from the bottom 
-        Collections.reverse(mazeInstance.tiles);
+        // Setting coordinates for all Tiles 
+        for (int y = 0; y < mazeInstance.tiles.size(); y++) {
+            for (int x = 0; x < mazeInstance.tiles.get(y).size(); x++) {
+                int yCoord = mazeInstance.tiles.size() - 1 - y;
+                mazeInstance.tileToCoordinateMap.put(mazeInstance.tiles.get(y).get(x), new Coordinate(x, yCoord));
+            }
+        }
 
         mazeInstance.tiles = updateDirectionsVisited(mazeInstance.tiles);
 

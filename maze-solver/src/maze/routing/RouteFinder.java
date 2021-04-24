@@ -19,6 +19,9 @@ import java.util.Stack;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public class RouteFinder implements Serializable {
     private Maze maze;
@@ -67,8 +70,6 @@ public class RouteFinder implements Serializable {
             RouteFinder routeFinder = (RouteFinder) input.readObject();
             input.close();
             System.out.println("RouteFinder loaded successfully");
-            // RESET COORDINATE MAP + OTHER STATIC VARIABLES
-
             stackMove = false;
 
             return routeFinder;
@@ -76,7 +77,7 @@ public class RouteFinder implements Serializable {
             e.printStackTrace();
         }  catch (ClassNotFoundException c) {
             c.printStackTrace();
-        } 
+        }
 
         return new RouteFinder(Maze.fromTxt("resources/mazes/maze1.txt"));
     }
@@ -103,7 +104,7 @@ public class RouteFinder implements Serializable {
                 makeMove(Direction.SOUTH, 2, 0);
             } else if (possibleMove(Direction.WEST, 3)) {
                 makeMove(Direction.WEST, 3, 1);
-            } else if (route.peek() == maze.getEntrance()) {
+            } else if (route.peek() == maze.getEntrance() && route.size() == 1) {
                 throw new NoRouteFoundException("No Route Found :(");
             } else {
                 // pop off stack 
@@ -128,14 +129,14 @@ public class RouteFinder implements Serializable {
 
     public boolean checkMoveBoundaries(Direction direction) {
         int x = maze.getTileLocation(currentTile).getX();
-        int y = maze.getTiles().size() - maze.getTileLocation(currentTile).getY() - 1;
+        int y = maze.getTileLocation(currentTile).getY();
 
         switch (direction) {
             case NORTH:
-                y--;          
+                y++;          
                 break;
             case SOUTH:
-                y++;     
+                y--;     
                 break;   
             case EAST:
                 x++;
@@ -146,6 +147,10 @@ public class RouteFinder implements Serializable {
             default: 
                 break;
         }
+
+        // Coordinate -> List format
+        y = maze.getTiles().size() - y - 1;
+
 
         if (y < 0 || y >= maze.getTiles().size() || x < 0 || x >= maze.getTiles().get(0).size()) {
             return false;
@@ -162,6 +167,7 @@ public class RouteFinder implements Serializable {
 
         route.push(currentTile); 
         stackMove = false;
+        currentTile.setVisited();
         
         if (currentTile == maze.getExit()) {
             finished = true;
@@ -170,7 +176,40 @@ public class RouteFinder implements Serializable {
     }
 
     public String toString() {
-        return "";
+        String mazeVisualised = "";
+        List<List<Tile>> tiles = new ArrayList<List<Tile>>(maze.getTiles());
+        Set<Tile> tileSet = new HashSet<Tile>();
+
+        int colSize = tiles.size();
+
+        Iterator stack = route.iterator();
+
+        while (stack.hasNext()) {
+            tileSet.add((Tile)stack.next());
+        }
+
+        for (int y = 0; y < colSize; y++) {
+            mazeVisualised += (colSize - y - 1) + "\t";
+            for (int x = 0; x < tiles.get(y).size(); x++) {
+                Tile tile = tiles.get(y).get(x);
+                if (!tile.getVisited()) {
+                    mazeVisualised += tile.toString() + " ";
+                } else if (tileSet.contains(tile)) {
+                    mazeVisualised += "* ";
+                } else {
+                    mazeVisualised += "- ";
+                }
+            }
+            mazeVisualised += "\n";
+        }
+
+        mazeVisualised += "\n\n\t";
+
+        for (int i = 0; i < tiles.get(0).size(); i++) {
+            mazeVisualised += i + " ";
+        }
+
+        return mazeVisualised;
     }
 
 }

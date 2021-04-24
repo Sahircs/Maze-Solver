@@ -25,11 +25,13 @@ public class Tile implements Serializable {
     public static Set<String> idsAlreadyUsed = new HashSet<String>();
     // [North, East, South, West]
     public boolean[] directionsVisited;
+    private boolean visitedByStack;
 
     private Tile(Tile.Type tileType) {
         type = tileType;
         id = generateUniqueId();
         directionsVisited = new boolean[]{false, false, false, false};
+        visitedByStack = false;
     }
 
     protected static Tile fromChar(char charRepresentation) {
@@ -42,6 +44,13 @@ public class Tile implements Serializable {
     public Type getType() {
         return type;
     }
+    public boolean getVisited() {
+        return visitedByStack;
+    }
+    public void setVisited() {
+        visitedByStack = true;
+    }
+
 
     public boolean isNavigable() {
         // All Types except from WALL can be navigated through
