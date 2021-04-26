@@ -3,7 +3,6 @@ package maze.routing;
 import maze.Maze;
 import maze.Maze.Direction;
 import maze.Tile;
-import maze.Maze.Coordinate;
 
 import maze.InvalidMazeException;
 import java.io.FileNotFoundException;
@@ -13,7 +12,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.File;
 
 import java.util.Stack;
 import java.util.List;
@@ -150,7 +148,6 @@ public class RouteFinder implements Serializable {
 
         // Coordinate -> List format
         y = maze.getTiles().size() - y - 1;
-
 
         if (y < 0 || y >= maze.getTiles().size() || x < 0 || x >= maze.getTiles().get(0).size()) {
             return false;

@@ -1,5 +1,5 @@
 /* 
-JavaFX application that allows users to specify a text file containing a maze representation
+JavaFX application solves a maze using DFS
 
 ./javac.sh src/MazeApplication.java  
 ./java.sh MazeApplication
@@ -15,8 +15,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.GridPane;
 // Controls
 import javafx.scene.control.ToggleButton;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Polygon;
 // Properties
 import javafx.geometry.Pos;
 import javafx.scene.layout.Background;
@@ -31,9 +29,9 @@ import maze.Tile;
 import maze.Tile.Type;
 import maze.routing.RouteFinder;
 import maze.routing.NoRouteFoundException;
+import maze.visualisation.MazeCell;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Scanner;
 import java.io.File;
 
@@ -42,16 +40,15 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Stack;
+
 import java.util.Iterator;
 
 
 public class MazeApplication extends Application {
     public static VBox root;
     public static GridPane mazeContainer;
-    // public static String filePath = "resources/mazes/maze1.txt";
     public static List<List<Tile>> tiles;
-    public static List<List<Rectangle>> tileList = new ArrayList<List<Rectangle>>();
-    // public static Rectangle currentRectangle = new Rectangle(0, 0, 0, 0);
+    public static List<List<MazeCell>> tileList = new ArrayList<List<MazeCell>>();
     public static Tile currentTile;
     public static Map<String, Color> tileColourMap = Map.ofEntries(
         Map.entry(Type.CORRIDOR.toString(), Color.WHITE),
@@ -130,15 +127,15 @@ public class MazeApplication extends Application {
                 return;
             } 
             
-            Rectangle tile = getRectangle(RouteFinder.currentTile);
+            MazeCell mazeCell = getMazeCell(RouteFinder.currentTile);
 
             // No move possible -> tile popped off stack -> update UI
-            if (routeFinder.stackMove) {
-                tile.setFill(Color.WHITE);
-                routeFinder.currentTile = routeFinder.getStackRoute().peek();
+            if (RouteFinder.stackMove) {
+                mazeCell.setColour(Color.WHITE);
+                RouteFinder.currentTile = routeFinder.getStackRoute().peek();
             } else {
                 // Move made -> update UI
-                tile.setFill(Color.YELLOW);
+                mazeCell.setColour(Color.YELLOW);
             }
         } 
     }; 
@@ -237,6 +234,9 @@ public class MazeApplication extends Application {
                 System.out.println("File Already exists!");
             }
         }
+
+        scan.close();
+        
         return "";
     }
 
@@ -244,34 +244,27 @@ public class MazeApplication extends Application {
         Iterator stack = routeStack.iterator();
 
         while (stack.hasNext()) {
-            Rectangle rectangle = getRectangle((Tile)stack.next());
-            rectangle.setFill(colour);
-            
-            if (tileList.get(0).get(0) == rectangle) {
-                rectangle.setFill(Color.GREEN);
-            }
+            MazeCell mazeCell = getMazeCell((Tile)stack.next());
+            mazeCell.setColour(colour);
         }
-        getRectangle(routeFinder.getMaze().getEntrance()).setFill(Color.GREEN);
+        getMazeCell(routeFinder.getMaze().getEntrance()).setColour(Color.GREEN);
     }
 
-    public Rectangle getRectangle(Tile tile) {
+    public MazeCell getMazeCell(Tile tile) {
         int x = routeFinder.getMaze().getTileLocation(tile).getX();
         int y = tileList.size() - routeFinder.getMaze().getTileLocation(tile).getY() - 1;
-        Rectangle rectangle = tileList.get(y).get(x);
 
-        return rectangle;
+        return tileList.get(y).get(x);
     }
 
     public void initialiseMazeUI() {
         for (int y = 0; y < tiles.size(); y++) {
-            List<Rectangle> tempTileList = new ArrayList<Rectangle>();
+            List<MazeCell> tempTileList = new ArrayList<MazeCell>();
             for (int x = 0; x < tiles.get(y).size(); x++) {
-                Rectangle mazeCell = new Rectangle(0, 0, 30, 30); 
                 String tileType = tiles.get(y).get(x).getType().toString();
-                mazeCell.setFill(tileColourMap.get(tileType));
-                mazeCell.setStroke(Color.BLACK);
+                MazeCell mazeCell = new MazeCell(tileColourMap.get(tileType)); 
 
-                mazeContainer.add(mazeCell, x, y);
+                mazeContainer.add(mazeCell.getRectangle(), x, y);
                 tempTileList.add(mazeCell);
             }
             tileList.add(tempTileList);
@@ -279,13 +272,6 @@ public class MazeApplication extends Application {
     }
 
     public static void main(String args[]) throws FileNotFoundException, InvalidMazeException {
-        // try {  
-        //     routeFinder = new RouteFinder(Maze.fromTxt("resources/mazes/maze2.txt"));
-        //     tiles = routeFinder.getMaze().getTiles();
-        // } catch (FileNotFoundException e) {
-        //     System.err.println(e.getMessage());
-        // } 
-
         launch(args);
     }
 }

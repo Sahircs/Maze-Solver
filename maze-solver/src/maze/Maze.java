@@ -7,12 +7,19 @@ import java.util.Scanner;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
+// javadoc -d ./html-docs -sourcepath ./Maze.java -subpackages maze
+// javadoc -d ./html-docs src/Maze.java
 
 
 public class Maze implements Serializable {
+    /**	
+	*	Class for the Maze which uses the Tile class to create the contents of the Maze
+	*	@author	Sahir Ali
+	*	@version	1.1,	25th	April	2021
+	*	@see	java.nio.file.Path
+	*/	
     private Tile entrance;
     private Tile exit;
     private List<List<Tile>> tiles;
