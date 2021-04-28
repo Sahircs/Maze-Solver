@@ -9,24 +9,29 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-// javadoc -d ./html-docs -sourcepath ./Maze.java -subpackages maze
-// javadoc -d ./html-docs src/Maze.java
-
+// javadoc -d ./html-docs -sourcepath ./src -subpackages maze
+// javadoc -d ./html-docs src/maze/Filename.java
 
 public class Maze implements Serializable {
     /**	
 	*	Class for the Maze which uses the Tile class to create the contents of the Maze
 	*	@author	Sahir Ali
-	*	@version	1.1,	25th	April	2021
-	*	@see	java.nio.file.Path
+	*	@see	java.nio.file.Path 
 	*/	
     private Tile entrance;
     private Tile exit;
     private List<List<Tile>> tiles;
-    // Extra variables to help when creating Maze
+    /**
+    * Boolean variable representing whether or not the entrance exists.
+    */
     public static boolean entranceExists = false;
+    /**
+    * Boolean variable representing whether or the exit exists.
+    */
     public static boolean exitExists = false;
-    // HashMap: Tile -> Coordinate
+    /**
+    * HashMap that maps a particular Tile object to its Coordinate object.
+    */
     private Map<Tile, Coordinate> tileToCoordinateMap;
 
     private Maze() {
@@ -34,16 +39,27 @@ public class Maze implements Serializable {
         tileToCoordinateMap = new HashMap<Tile, Coordinate>();
     }
 
-    // Getters: variables
+    /**
+    * Getter method - to get the list of tiles within the corresponding maze.
+    */
     public List<List<Tile>> getTiles() {
         return tiles;
     }
+    /** 
+    * Getter method - to get the entrance Tile set.
+    */
     public Tile getEntrance() {
         return entrance;
     }
+    /** 
+    * Getter method - to get the exit Tile set.
+    */
     public Tile getExit() {
         return exit;
     }
+    /** 
+    * Getter method - to get the HashMap ({@link #tileToCoordinateMap}) set.
+    */
     public Map<Tile, Coordinate> getMap() {
         return tileToCoordinateMap;
     }
@@ -66,8 +82,20 @@ public class Maze implements Serializable {
         exitExists = true;
     }
 
-    // Creating Maze
-    public static Maze fromTxt(String filename) throws FileNotFoundException, InvalidMazeException {
+    /**
+     * Creates the Maze using the .txt file (retrieved using the file path) for the maze contents. 
+     * Contents are instantiated as Tile objects which is then added to a 2D list of Tiles {@link #tiles} representing the maze. 
+     * Method also sets the entrance {@link #entrance} & exit {@link #exit} Tile 
+     * and creates a Map full of Tiles that map onto their Coordinates {@link #tileToCoordinateMap}.
+     * @param filepath the path to the .txt file which contains the contents of the maze.
+     * @return Returns a Maze instance with all of its attributes set.
+     * @throws RaggedMazeException If sizes of rows are not equal.
+     * @throws MultipleEntranceException If multiple entrances are detected.
+     * @throws MultipleExitException If multiple exits are detected.
+     * @throws FileNotFoundException If the file is not found - incorrect filepath parameter.
+     * @throws InvalidMazeException If the .txt file contains characters which are not valid.
+     */
+    public static Maze fromTxt(String filepath) throws FileNotFoundException, InvalidMazeException {
         entranceExists = false;
         exitExists = false;
 
@@ -76,7 +104,7 @@ public class Maze implements Serializable {
 
         Maze mazeInstance = new Maze();
 
-        Scanner scan = new Scanner(new FileReader(filename));
+        Scanner scan = new Scanner(new FileReader(filepath));
         
         while (scan.hasNextLine()) {
             String[] mazeRowInput = scan.nextLine().replaceAll("\\s", "").split("");
@@ -150,6 +178,12 @@ public class Maze implements Serializable {
         return mazeInstance;
     }
 
+    /**
+     * Updates the 'directionsVisited' attribute of each Tile object 
+     * so we can automatically rule out certain moves as invalid/already visited
+     * @param tileList {@link #tiles} attribute of a Maze instance 
+     * @return Returns updated {@link #tiles}
+     */
     public static List<List<Tile>> updateDirectionsVisited(List<List<Tile>> tileList) {
         int rowEnd = tileList.size() - 1;
         int columnEnd = tileList.get(0).size() - 1;
@@ -179,6 +213,11 @@ public class Maze implements Serializable {
         return tileList;
     }
 
+    /**
+     * Iterates over the {@link #tiles} attribute of the Maze and 
+     * converts the contents into a String representation of the whole maze with coordinates.
+     * @return Returns a string that visualises the entire maze.
+     */
     public String toString() {
         String mazeVisualised = "";
 
@@ -207,7 +246,13 @@ public class Maze implements Serializable {
 
         return mazeVisualised;
     }
-
+    
+    /**
+     * Gets the tile next to the 'tile' input in a specified Direction using the enum, {@see maze.Maze.Direction}. 
+     * @param tile a Tile object which is contained within the maze.
+     * @param direction the direction to look for the adjacent Tile.
+     * @return Returns the tile next to a specified tile in a given Direction.
+     */
     public Tile getAdjacentTile(Tile tile, Direction direction) {
         Coordinate tileCoords = getTileLocation(tile);
 
@@ -232,6 +277,11 @@ public class Maze implements Serializable {
         return tiles.get(tiles.size() - y - 1).get(x);
     }
 
+    /**
+     * Retrieves the tile using a given Coordinate object
+     * @param coord the Coordinate object that should correspond to a Tile object
+     * @return Returns the tile at given location
+     */
     public Tile getTileAtLocation(Coordinate coord) {
         int x = coord.getX();
         int y = tiles.size() - coord.getY() - 1;
@@ -239,11 +289,18 @@ public class Maze implements Serializable {
         return tiles.get(y).get(x);
     }
 
+    /**
+     * Gets the location of a Tile object using the HashMap {@link #tileToCoordinateMap}.
+     * @param tile the Tile object 
+     * @return Returns location of the tile
+     */
     public Coordinate getTileLocation(Tile tile) {
-        // Using HashMap
         return tileToCoordinateMap.get(tile);
     }
 
+    /**
+     * An Enum containing all the possible directions you can move within the maze.
+     */
     public enum Direction {
         NORTH,
         SOUTH,
@@ -255,19 +312,36 @@ public class Maze implements Serializable {
         private int x;
         private int y;
 
+        /**
+         * Constructor which requires the x and y coordinate to create a Coordinate object.
+         * @param xVal x-coordinate
+         * @param yVal y-coordinate 
+         */
         public Coordinate(int xVal, int yVal) {
             x = xVal;
             y = yVal;
         }
 
+        /**
+         * Getter method - to get the {@link x} coordinate. 
+         * @return Returns the {@link x} attribute.
+         */
         public int getX() {
             return x;
         }
 
+        /**
+         * Getter method - to get the {@link y} coordinate. 
+         * @return Returns the {@link y} attribute.
+         */
         public int getY() {
             return y;
         }
 
+        /**
+         * Creates a string representation of the coordinates in the from (x, y).
+         * @return Returns a string representing the coordinates.
+         */
         public String toString() {
             return "(" + x + ", " + y + ")" ;
         }
