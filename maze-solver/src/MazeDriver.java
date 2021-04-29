@@ -1,5 +1,3 @@
-import java.io.FileNotFoundException;
-
 /*
 Optional Java Application used during development process.
 Used for testing purposes.
@@ -10,6 +8,7 @@ Used for testing purposes.
 
 import maze.Maze;
 import maze.InvalidMazeException;
+import java.io.FileNotFoundException;
 
 public class MazeDriver {
     public static void main(String args[]) throws FileNotFoundException, InvalidMazeException {

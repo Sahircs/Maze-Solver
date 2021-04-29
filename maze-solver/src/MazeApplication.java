@@ -1,8 +1,8 @@
 /* 
 JavaFX application that solves a maze using DFS
 
-./javac.sh src/MazeApplication.java  
-./java.sh MazeApplication
+./javac.sh src/MazeApplication.java     - compile
+./java.sh MazeApplication               - run
 */
 
 // JavaFX Imports 

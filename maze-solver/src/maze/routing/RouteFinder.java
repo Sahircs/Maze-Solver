@@ -90,10 +90,12 @@ public class RouteFinder implements Serializable {
 
     /**
      * Reads in a RouteFinder object from a file using 
-     * {@see java.io.ObjectInputStream} and java.io.FileInputStream
      * @param filePath representing the path to the file containing a RouteFinder object.
      * @return Returns a RouteFinder object loaded from a file.
      * @throws FileNotFoundException if file is not found.
+     * @throws InvalidMazeException if .txt file stores an invalid maze.
+     * @see java.io.ObjectInputStream
+     * @see java.io.FileInputStream
      */
     public static RouteFinder load(String filePath) throws FileNotFoundException, InvalidMazeException {
         try {

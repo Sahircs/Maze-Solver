@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-// javadoc -d ./html-docs -sourcepath ./src -subpackages maze
-// javadoc -d ./html-docs src/maze/Filename.java
 
 public class Maze implements Serializable {
     /**	
@@ -41,24 +39,28 @@ public class Maze implements Serializable {
 
     /**
     * Getter method - to get the list of tiles within the corresponding maze.
+    * @return Returns a 2D ArrayList of Tiles.
     */
     public List<List<Tile>> getTiles() {
         return tiles;
     }
     /** 
     * Getter method - to get the entrance Tile set.
+    * @return Returns the {@link #entrance} tile.
     */
     public Tile getEntrance() {
         return entrance;
     }
     /** 
     * Getter method - to get the exit Tile set.
+    * @return Returns the {@link #exit} tile.
     */
     public Tile getExit() {
         return exit;
     }
     /** 
     * Getter method - to get the HashMap ({@link #tileToCoordinateMap}) set.
+    * @return Returns a HashMap that maps a Tile to its Coordinate object.
     */
     public Map<Tile, Coordinate> getMap() {
         return tileToCoordinateMap;
@@ -85,7 +87,7 @@ public class Maze implements Serializable {
     /**
      * Creates the Maze using the .txt file (retrieved using the file path) for the maze contents. 
      * Contents are instantiated as Tile objects which is then added to a 2D list of Tiles {@link #tiles} representing the maze. 
-     * Method also sets the entrance {@link #entrance} & exit {@link #exit} Tile 
+     * Method also sets the {@link #entrance} and {@link #exit} Tile 
      * and creates a Map full of Tiles that map onto their Coordinates {@link #tileToCoordinateMap}.
      * @param filepath the path to the .txt file which contains the contents of the maze.
      * @return Returns a Maze instance with all of its attributes set.
@@ -212,43 +214,9 @@ public class Maze implements Serializable {
         }
         return tileList;
     }
-
-    /**
-     * Iterates over the {@link #tiles} attribute of the Maze and 
-     * converts the contents into a String representation of the whole maze with coordinates.
-     * @return Returns a string that visualises the entire maze.
-     */
-    public String toString() {
-        String mazeVisualised = "";
-
-        int rowSize = tiles.size();
-        int colSize = tiles.get(0).size();
-
-        for (int row = 0; row < rowSize; row++) {
-            mazeVisualised += ((rowSize - row - 1) + "\t");
-            for (int col = 0; col < colSize; col++) {
-                // For rows >= 10  ->  they need some extra space
-                if (Integer.toString(col).length() > 1) {
-                    mazeVisualised += " ";
-                }
-                mazeVisualised += (tiles.get(row).get(col).toString() + "  ");
-            }
-            mazeVisualised += "\n\n";
-        }
-
-        mazeVisualised += "\n\n\t";
-
-        // display columns at the bottom
-        for (int col = 0; col < colSize; col++) {
-            mazeVisualised += (col + "  ");
-        }
-        mazeVisualised += "\n";
-
-        return mazeVisualised;
-    }
     
     /**
-     * Gets the tile next to the 'tile' input in a specified Direction using the enum, {@see maze.Maze.Direction}. 
+     * Gets the tile next to the 'tile' input in a specified Direction using the enum, Maze.Direction. 
      * @param tile a Tile object which is contained within the maze.
      * @param direction the direction to look for the adjacent Tile.
      * @return Returns the tile next to a specified tile in a given Direction.
@@ -345,5 +313,39 @@ public class Maze implements Serializable {
         public String toString() {
             return "(" + x + ", " + y + ")" ;
         }
+    }
+
+    /**
+     * Iterates over the {@link #tiles} attribute of the Maze and 
+     * converts the contents into a String representation of the whole maze with coordinates.
+     * @return Returns a string that visualises the entire maze.
+     */
+    public String toString() {
+        String mazeVisualised = "";
+
+        int rowSize = tiles.size();
+        int colSize = tiles.get(0).size();
+
+        for (int row = 0; row < rowSize; row++) {
+            mazeVisualised += ((rowSize - row - 1) + "\t");
+            for (int col = 0; col < colSize; col++) {
+                // For rows >= 10  ->  they need some extra space
+                if (Integer.toString(col).length() > 1) {
+                    mazeVisualised += " ";
+                }
+                mazeVisualised += (tiles.get(row).get(col).toString() + "  ");
+            }
+            mazeVisualised += "\n\n";
+        }
+
+        mazeVisualised += "\n\n\t";
+
+        // display columns at the bottom
+        for (int col = 0; col < colSize; col++) {
+            mazeVisualised += (col + "  ");
+        }
+        mazeVisualised += "\n";
+
+        return mazeVisualised;
     }
 }
