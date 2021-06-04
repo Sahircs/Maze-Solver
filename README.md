@@ -1,6 +1,6 @@
 # Maze-Solver
 
-A GUI that uses Search Algorithms such as Depth-First Search to solve a maze using Java, JavaFX and OOP
+A GUI that uses Search Algorithms such as Depth-First Search to solve a maze using Java, JavaFX and OOP.
 
 
 ### How do I compile/run my code
